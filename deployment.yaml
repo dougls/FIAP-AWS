@@ -26,34 +26,34 @@ spec:
                 - amd64
                 - arm64
       containers:
-        - name: sonarqube
-          image: sonarqube:8.9.2-community
-          resources:
+      - name: sonarqube
+        image: sonarqube:8.9.2-community
+        resources:
             requests:
               cpu: 500m
               memory: 1024Mi
             limits:
               cpu: 2000m
               memory: 2048Mi
-            env:
-              - name: "SONARQUBE_JDBC_USERNAME"
-                valueFrom:  
-                  secretKeyRef:  
-                    name: postgres  
-                    key: user
-              - name: "SONARQUBE_JDBC_URL"
-                valueFrom:
-                  configMapKeyRef:
-                    name: sonarqube
-                    key: rds-string
-              - name: "SONARQUBE_JDBC_PASSWORD"
-                valueFrom:  
-                  secretKeyRef:  
-                    name: postgres  
-                    key: password
-            ports:
-              - containerPort: 9000
-                protocol: TCP
-            imagePullPolicy: IfNotPresent
-          nodeSelector:
-            kubernetes.io/os: linux
+        env:
+          - name: "SONARQUBE_JDBC_USERNAME"
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: user
+          - name: "SONARQUBE_JDBC_URL"
+            valueFrom:
+              configMapKeyRef:
+                name: sonarqube
+                key: rds-string
+          - name: "SONARQUBE_JDBC_PASSWORD"
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: password
+        ports:
+        - name: http
+          containerPort: 9000
+        imagePullPolicy: IfNotPresent
+      nodeSelector:
+        kubernetes.io/os: linux
