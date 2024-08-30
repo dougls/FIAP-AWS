@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube
+  namespace: sonarqube
+  labels:
+    app: sonarqube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarqube
+  template:
+    metadata:
+      labels:
+        app: sonarqube
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+        - name: sonarqube
+          image: sonarqube:8.9.2-community
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1024Mi
+            limits:
+              cpu: 2000m
+              memory: 2048Mi
+            env:
+              - name: "SONARQUBE_JDBC_USERNAME"
+                valueFrom:  
+                  secretKeyRef:  
+                    name: postgres  
+                    key: user
+              - name: "SONARQUBE_JDBC_URL"
+                valueFrom:
+                  configMapKeyRef:
+                    name: sonarqube
+                    key: rds-string
+              - name: "SONARQUBE_JDBC_PASSWORD"
+                valueFrom:  
+                  secretKeyRef:  
+                    name: postgres  
+                    key: password
+            ports:
+              - containerPort: 9000
+                protocol: TCP
+            imagePullPolicy: IfNotPresent
+          nodeSelector:
+            kubernetes.io/os: linux
